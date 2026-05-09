@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sahil — YouTube Thumbnail Designer</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;500;600;700&family=Barlow+Condensed:wght@700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{--red:#e63946;--gold:#f4a61d;--dark:#080a0f;--dark2:#0d1017;--dark3:#131720;--text:#e8eaf0;--muted:#7a8099;--border:rgba(255,255,255,0.07)}
+html{scroll-behavior:smooth}
+body{background:var(--dark);color:var(--text);font-family:'Barlow',sans-serif;overflow-x:hidden;cursor:none}
+.cursor{width:12px;height:12px;background:var(--gold);border-radius:50%;position:fixed;top:0;left:0;pointer-events:none;z-index:9999;mix-blend-mode:difference}
+.cursor-ring{width:36px;height:36px;border:1.5px solid var(--gold);border-radius:50%;position:fixed;top:0;left:0;pointer-events:none;z-index:9998;opacity:0.5}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:1.2rem 3rem;background:rgba(8,10,15,0.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--border)}
+.nav-logo{font-family:'Bebas Neue',sans-serif;font-size:1.6rem;letter-spacing:0.12em;color:var(--gold);text-decoration:none}
+.nav-links{display:flex;gap:2rem;list-style:none}
+.nav-links a{font-size:0.82rem;font-weight:500;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);text-decoration:none;transition:color 0.25s}
+.nav-links a:hover{color:var(--text)}
+/* HERO */
+.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;position:relative;overflow:hidden;padding:8rem 2rem 4rem}
+.hero-bg{position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 50% 60%,rgba(244,166,29,0.08) 0%,transparent 70%),radial-gradient(ellipse 50% 40% at 20% 20%,rgba(230,57,70,0.06) 0%,transparent 60%)}
+.hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.025) 1px,transparent 1px);background-size:60px 60px;mask-image:radial-gradient(ellipse 80% 60% at 50% 50%,black 30%,transparent 100%)}
+.hero-badge{display:inline-flex;align-items:center;gap:0.5rem;background:rgba(244,166,29,0.12);border:1px solid rgba(244,166,29,0.3);color:var(--gold);font-size:0.75rem;font-weight:600;letter-spacing:0.15em;text-transform:uppercase;padding:0.4rem 1.1rem;border-radius:100px;margin-bottom:1.8rem;position:relative}
+.badge-dot{width:6px;height:6px;background:var(--gold);border-radius:50%;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.4;transform:scale(0.8)}}
+.hero h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(4rem,11vw,8.5rem);line-height:0.92;letter-spacing:0.04em;position:relative}
+.hero h1 span{color:var(--gold)}
+.hero h1 em{font-style:normal;-webkit-text-stroke:2px var(--red);color:transparent}
+.hero-sub{font-size:1.05rem;font-weight:300;color:var(--muted);max-width:520px;line-height:1.7;margin:1.6rem auto 2.8rem;position:relative}
+.hero-cta{display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;position:relative}
+.btn{display:inline-flex;align-items:center;gap:0.5rem;font-family:'Barlow',sans-serif;font-size:0.82rem;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;text-decoration:none;padding:0.85rem 2rem;border-radius:4px;transition:all 0.25s;cursor:none}
+.btn-primary{background:var(--gold);color:#000}
+.btn-primary:hover{background:#ffb830;transform:translateY(-2px)}
+.btn-outline{background:transparent;color:var(--text);border:1px solid rgba(255,255,255,0.2)}
+.btn-outline:hover{border-color:rgba(255,255,255,0.5);transform:translateY(-2px)}
+.stats{display:flex;justify-content:center;margin:5rem auto 0;max-width:700px;border:1px solid var(--border);border-radius:8px;overflow:hidden}
+.stat-item{flex:1;padding:1.6rem 2rem;text-align:center;border-right:1px solid var(--border);background:var(--dark2)}
+.stat-item:last-child{border-right:none}
+.stat-num{font-family:'Bebas Neue',sans-serif;font-size:2.4rem;color:var(--gold);letter-spacing:0.05em;line-height:1}
+.stat-label{font-size:0.72rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);margin-top:0.3rem}
+section{padding:6rem 2rem}
+.section-header{text-align:center;margin-bottom:3.5rem}
+.section-tag{display:inline-block;font-size:0.72rem;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold);margin-bottom:0.8rem}
+.section-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(2.5rem,6vw,4.5rem);letter-spacing:0.06em;line-height:1}
+.section-title span{color:var(--red)}
+.section-line{width:50px;height:2px;background:var(--gold);margin:1.2rem auto 0}
+/* PORTFOLIO — uniform grid, all equal */
+.portfolio-wrap{max-width:1280px;margin:0 auto}
+.portfolio-filter{display:flex;justify-content:center;gap:0.6rem;flex-wrap:wrap;margin-bottom:3rem}
+.filter-btn{font-family:'Barlow',sans-serif;font-size:0.75rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;padding:0.5rem 1.2rem;border-radius:100px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:none;transition:all 0.25s}
+.filter-btn:hover,.filter-btn.active{background:var(--gold);border-color:var(--gold);color:#000}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.thumb-card{position:relative;border-radius:8px;overflow:hidden;aspect-ratio:16/9;background:var(--dark3);cursor:none;transition:transform 0.3s ease,box-shadow 0.3s ease}
+.thumb-card:hover{transform:translateY(-4px);box-shadow:0 12px 40px rgba(0,0,0,0.5)}
+.thumb-card img{width:100%;height:100%;object-fit:cover;display:block;transition:transform 0.5s ease}
+.thumb-card:hover img{transform:scale(1.05)}
+.thumb-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,0.88) 0%,rgba(0,0,0,0) 55%);opacity:0;transition:opacity 0.3s;display:flex;flex-direction:column;justify-content:flex-end;padding:1rem}
+.thumb-card:hover .thumb-overlay{opacity:1}
+.thumb-cat{font-size:0.6rem;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:var(--gold);margin-bottom:0.2rem}
+.thumb-name{font-family:'Barlow Condensed',sans-serif;font-size:1rem;font-weight:700;color:#fff}
+/* BEFORE AFTER */
+.revision-section{background:var(--dark2);border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+.revision-wrap{max-width:1000px;margin:0 auto}
+.revision-grid{display:grid;grid-template-columns:1fr 1fr;gap:2rem;align-items:start}
+.revision-card{position:relative;border-radius:10px;overflow:hidden;aspect-ratio:16/9;background:var(--dark3);border:1px solid var(--border)}
+.revision-card img{width:100%;height:100%;object-fit:cover;display:block}
+.rev-badge{position:absolute;top:12px;left:12px;font-size:0.7rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;padding:0.3rem 0.8rem;border-radius:4px}
+.rev-badge.v1{background:rgba(255,255,255,0.15);color:#fff}
+.rev-badge.v2{background:var(--gold);color:#000}
+.revision-info{margin-top:2rem;display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.rev-info-card{background:var(--dark3);border:1px solid var(--border);border-radius:8px;padding:1.2rem 1.5rem}
+.rev-info-card h4{font-size:0.72rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--muted);margin-bottom:0.6rem}
+.rev-info-card ul{list-style:none;display:flex;flex-direction:column;gap:0.4rem}
+.rev-info-card li{font-size:0.88rem;color:var(--text);display:flex;align-items:center;gap:0.5rem}
+.rev-info-card li::before{content:'';width:4px;height:4px;border-radius:50%;background:var(--gold);flex-shrink:0}
+/* PRICING */
+.pricing-note{text-align:center;margin-bottom:2.5rem;color:var(--muted);font-size:0.9rem;line-height:1.6}
+.pricing-note strong{color:var(--gold)}
+.services-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.2rem;max-width:960px;margin:0 auto}
+.service-card{background:var(--dark2);border:1px solid var(--border);border-radius:12px;padding:2rem;transition:border-color 0.3s,transform 0.3s;display:flex;flex-direction:column}
+.service-card:hover{border-color:rgba(244,166,29,0.4);transform:translateY(-4px)}
+.service-card.featured-plan{border-color:rgba(244,166,29,0.5);position:relative}
+.plan-badge{position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--gold);color:#000;font-size:0.65rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;padding:0.3rem 0.9rem;border-radius:100px;white-space:nowrap}
+.service-icon{font-size:1.8rem;margin-bottom:1rem}
+.service-card h3{font-family:'Barlow Condensed',sans-serif;font-size:1.25rem;font-weight:700;letter-spacing:0.06em;margin-bottom:0.5rem;color:var(--text)}
+.service-card p{font-size:0.88rem;color:var(--muted);line-height:1.65;flex:1}
+.price-block{margin-top:1.5rem;padding-top:1.2rem;border-top:1px solid var(--border)}
+.price-main{font-family:'Bebas Neue',sans-serif;font-size:2.2rem;color:var(--gold);letter-spacing:0.04em;line-height:1}
+.price-sub{font-size:0.78rem;color:var(--muted);margin-top:0.25rem}
+.price-features{list-style:none;margin-top:1rem;display:flex;flex-direction:column;gap:0.4rem}
+.price-features li{font-size:0.82rem;color:var(--muted);display:flex;align-items:center;gap:0.5rem}
+.price-features li::before{content:'✓';color:var(--gold);font-weight:700;font-size:0.75rem}
+/* CONTACT */
+.contact-wrap{max-width:600px;margin:0 auto;text-align:center}
+.contact-links{display:flex;justify-content:center;gap:1rem;flex-wrap:wrap;margin-top:2.5rem}
+.contact-link{display:inline-flex;align-items:center;gap:0.6rem;font-size:0.82rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);text-decoration:none;padding:0.7rem 1.5rem;border:1px solid var(--border);border-radius:4px;transition:all 0.25s;cursor:none}
+.contact-link:hover{color:#000;background:var(--gold);border-color:var(--gold)}
+.contact-link svg{width:18px;height:18px}
+footer{background:var(--dark2);border-top:1px solid var(--border);text-align:center;padding:2rem;font-size:0.8rem;color:var(--muted);letter-spacing:0.06em}
+footer span{color:var(--gold)}
+/* LIGHTBOX */
+.lightbox{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.96);z-index:1000;align-items:center;justify-content:center;padding:2rem}
+.lightbox.open{display:flex}
+.lightbox img{max-width:90vw;max-height:88vh;border-radius:8px;object-fit:contain}
+.lb-close{position:fixed;top:1.5rem;right:1.5rem;background:rgba(255,255,255,0.1);border:none;color:#fff;width:44px;height:44px;border-radius:50%;font-size:1.4rem;cursor:none;display:flex;align-items:center;justify-content:center;transition:background 0.2s}
+.lb-close:hover{background:var(--red)}
+.reveal{opacity:0;transform:translateY(28px);transition:opacity 0.65s ease,transform 0.65s ease}
+.reveal.visible{opacity:1;transform:translateY(0)}
+@media(max-width:1100px){.grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:800px){nav{padding:1rem 1.5rem}.nav-links{gap:1.2rem}.grid{grid-template-columns:repeat(2,1fr)}.services-grid{grid-template-columns:1fr 1fr}.revision-grid{grid-template-columns:1fr}.revision-info{grid-template-columns:1fr}}
+@media(max-width:500px){.grid{grid-template-columns:1fr}.services-grid{grid-template-columns:1fr}.stats{flex-direction:column}.stat-item{border-right:none;border-bottom:1px solid var(--border)}}
+</style>
+</head>
+<body>
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+<nav>
+  <a href="#" class="nav-logo">SAHIL</a>
+  <ul class="nav-links">
+    <li><a href="#work">Work</a></li>
+    <li><a href="#process">Process</a></li>
+    <li><a href="#services">Pricing</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+</nav>
+
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
+  <div class="hero-badge"><span class="badge-dot"></span> Available for projects</div>
+  <h1>THUMBNAIL<br><span>DESIGNER</span><br><em>SAHIL</em></h1>
+  <p class="hero-sub">Creating scroll-stopping YouTube thumbnails that get clicks. Bold visuals, cinematic energy, and results that speak for themselves.</p>
+  <div class="hero-cta">
+    <a href="#work" class="btn btn-primary">View My Work</a>
+    <a href="#contact" class="btn btn-outline">Hire Me</a>
+  </div>
+  <div class="stats reveal">
+    <div class="stat-item"><div class="stat-num">17+</div><div class="stat-label">Thumbnails</div></div>
+    <div class="stat-item"><div class="stat-num">5+</div><div class="stat-label">Niches</div></div>
+    <div class="stat-item"><div class="stat-num">100%</div><div class="stat-label">Custom</div></div>
+    <div class="stat-item"><div class="stat-num">Fast</div><div class="stat-label">Delivery</div></div>
+  </div>
+</section>
+
+<section id="work">
+  <div class="portfolio-wrap">
+    <div class="section-header reveal">
+      <div class="section-tag">Portfolio</div>
+      <h2 class="section-title">MY <span>WORK</span></h2>
+      <div class="section-line"></div>
+    </div>
+    <div class="portfolio-filter reveal">
+      <button class="filter-btn active" onclick="filterThumbs('all',this)">All</button>
+      <button class="filter-btn" onclick="filterThumbs('gaming',this)">Gaming</button>
+      <button class="filter-btn" onclick="filterThumbs('horror',this)">Horror</button>
+      <button class="filter-btn" onclick="filterThumbs('motivation',this)">Motivation</button>
+      <button class="filter-btn" onclick="filterThumbs('anime',this)">Anime</button>
+      <button class="filter-btn" onclick="filterThumbs('kids',this)">Kids</button>
+    </div>
+    <div class="grid reveal" id="thumbGrid">
+      <div class="thumb-card" data-cat="motivation" onclick="openLightbox(0)">
+        <img src="images/thumb1_24_hours_inside.jpg" alt="24 Hours Inside" loading="lazy">
+        <div class="thumb-overlay"><div class="thumb-cat">Challenge / Viral</div><div class="thumb-name">24 Hours Inside</div></div>
+      </div>
+      <div class="thumb-card" data-cat="gaming" onclick="openLightbox(1)">
+        <img src="images/thumb2_final_boss_v1.jpg" alt="Final Boss — V1" loading="lazy">
+        <div class="thumb-overlay"><div class="thumb-cat">Gaming</div><div class="thumb-name">Final Boss — V1</div></div>
+      </div>
+      <div class="thumb-card" data-cat="gaming" onclick="openLightbox(2)">
+        <img src="images/thumb3_final_boss_v2.jpg" alt="Final Boss — V2" loading="lazy">
+        <div class="thumb-overlay"><div class="thumb-cat">Gaming</div><div class="thumb-name">Final Boss — V2</div></div>
+      </div>
+      <div class="thumb-card" data-cat="horror" onclick="openLightbox(3)">
+        <img src="images/thumb4_don.jpg" alt="Don't Look Back — V1" loading="lazy">
+        <div class="thumb-overlay"><div class="thumb-cat">Horror</div><div class="thumb-name">Don't Look Back — V1</div></div>
+      </div>
+      <div class="thumb-card" data-cat="anime" onclick="openLightbox(4)">
+        <img src="images/thumb5_new_power.jpg" alt="New Power!" loading="lazy">
+        <div class="thumb-overlay"><div class="thumb-cat">Anime</div><div class="thumb-name">New Power!</div></div>
+      </div>
+      <div class="thumb-card" data-cat="motivation" onclick="openLightbox(5)">
+        <img src="images/thumb6_0_to_10_lakh_v1.jpg" alt="₹0 to ₹10 Lakh — V1" loading="lazy">
+        <div class="thumb-overlay"><div class="thumb-cat">Finance</div><div class="thumb-name">₹0 to ₹10 Lakh — V1</div></div>
+      </div>
+      <div class="thumb-card" data-cat="motivation" onclick="openLightbox(6)">
+        <img src="images/thumb7_100_hours_trapped.jpg" alt="100 Hours Trapped!" loading="lazy">
+        <div class="thumb-overlay"><div class="thumb-cat">Challenge</div><div class="thumb-name">100 Hours Trapped!</div></div>
+      </div>
+      <div class="thumb-card" data-cat="motivation" onclick="openLightbox(7)">
+        <img src="images/thumb8_0_to_10_lakh_v2.jpg" alt="₹0 to ₹10 Lakh — V2" loading="lazy">
+        <div class="thumb-overlay"><div class="thumb-cat">Finance</div><div class="thumb-name">₹0 to ₹10 Lakh — V2</div></div>
+      </div>
+      <div class="thumb-card" data-cat="motivation" onclick="openLightbox(8)">
+        <img src="images/thumb9_the_lost_city.jpg" alt="The Lost City" loading="lazy">
+        <div class="thumb-overlay"><div class="thumb-cat">Adventure</div><div class="thumb-name">The Lost City</div></div>
+      </div>
+      <div class="thumb-card" data-cat="gaming" onclick="openLightbox(9)">
+        <img src="images/thumb10_final_boss_v3.jpg" alt="Final Boss — V3" loading="lazy">
+        <div class="thumb-overlay"><div class="thumb-cat">Gaming</div><div class="thumb-name">Final Boss — V3</div></div>
+      </div>
+      <div class="thumb-card" data-cat="horror" onclick="openLightbox(10)">
+        <img src="images/thumb11_don.jpg" alt="Don't Look Back — V2" loading="lazy">
+        <div class="thumb-overlay"><div class="thumb-cat">Horror</div><div class="thumb-name">Don't Look Back — V2</div></div>
+      </div>
+      <div class="thumb-card" data-cat="motivation" onclick="openLightbox(11)">
+        <img src="images/thumb12_the_truth_about_success.jpg" alt="The Truth About Success" loading="lazy">
+        <div class="thumb-overlay"><div class="thumb-cat">Podcast</div><div class="thumb-name">The Truth About Success</div></div>
+      </div>
+      <div class="thumb-card" data-cat="kids" onclick="openLightbox(12)">
+        <img src="images/thumb13_dino_adventure.jpg" alt="Dino Adventure!" loading="lazy">
+        <div class="thumb-overlay"><div class="thumb-cat">Kids</div><div class="thumb-name">Dino Adventure!</div></div>
+      </div>
+      <div class="thumb-card" data-cat="motivation" onclick="openLightbox(13)">
+        <img src="images/thumb14_1_year_difference.jpg" alt="1 Year Difference" loading="lazy">
+        <div class="thumb-overlay"><div class="thumb-cat">Transformation</div><div class="thumb-name">1 Year Difference</div></div>
+      </div>
+      <div class="thumb-card" data-cat="motivation" onclick="openLightbox(14)">
+        <img src="images/thumb15_ai_changed_everything.jpg" alt="AI Changed Everything" loading="lazy">
+        <div class="thumb-overlay"><div class="thumb-cat">Tech / AI</div><div class="thumb-name">AI Changed Everything</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="revision-section" id="process">
+  <div class="revision-wrap">
+    <div class="section-header reveal">
+      <div class="section-tag">Design Process</div>
+      <h2 class="section-title">BEFORE <span>&amp;</span> AFTER</h2>
+      <div class="section-line"></div>
+      <p style="margin-top:1rem;color:var(--muted);font-size:0.95rem">90 Day Transformation — how I refined the design based on client feedback</p>
+    </div>
+    <div class="revision-grid reveal">
+      <div style="display:flex;flex-direction:column;gap:0.7rem;align-items:center">
+        <div class="revision-card">
+          <img src="images/thumb16_revision_v1.jpg" alt="Version 1">
+          <div class="rev-badge v1">Version 1</div>
+        </div>
+        <p style="font-size:0.78rem;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase">Initial Draft</p>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:0.7rem;align-items:center">
+        <div class="revision-card" style="border-color:rgba(244,166,29,0.45)">
+          <img src="images/thumb17_revision_v2.jpg" alt="Final Version">
+          <div class="rev-badge v2">Final ✓</div>
+        </div>
+        <p style="font-size:0.78rem;color:var(--gold);letter-spacing:0.1em;text-transform:uppercase">Client Approved ✓</p>
+      </div>
+    </div>
+    <div class="revision-info reveal">
+      <div class="rev-info-card">
+        <h4>Version 1 — Initial Draft</h4>
+        <ul>
+          <li>Athletic muscular "After" figure</li>
+          <li>Intense screaming pose on right</li>
+          <li>Strong fire &amp; energy glow effects</li>
+          <li>High-contrast dramatic lighting</li>
+          <li>Leaner "Before" physique shown</li>
+        </ul>
+      </div>
+      <div class="rev-info-card">
+        <h4>Final Version — Feedback Applied</h4>
+        <ul>
+          <li>Heavier "Before" for stronger contrast</li>
+          <li>Calm confident pose for "After"</li>
+          <li>More relatable, realistic body type</li>
+          <li>Cleaner lighting, better readability</li>
+          <li>Refined warm color grading</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="services">
+  <div class="section-header reveal">
+    <div class="section-tag">Pricing</div>
+    <h2 class="section-title">MY <span>RATES</span></h2>
+    <div class="section-line"></div>
+  </div>
+  <p class="pricing-note reveal">Beginner-friendly pricing — <strong>high quality at an honest rate</strong>.<br>All thumbnails include unlimited revisions until you're happy.</p>
+  <div class="services-grid reveal">
+    <div class="service-card">
+      <div class="service-icon">🎨</div>
+      <h3>Starter</h3>
+      <p>Simple, clean design with bold text, solid composition, and one revision. Great for new channels just getting started.</p>
+      <div class="price-block">
+        <div class="price-main">₹149</div>
+        <div class="price-sub">~$1.8 USD &nbsp;·&nbsp; per thumbnail</div>
+        <ul class="price-features">
+          <li>1 concept</li>
+          <li>1 revision</li>
+          <li>Delivered in 24hrs</li>
+          <li>High-res PNG</li>
+        </ul>
+      </div>
+    </div>
+    <div class="service-card featured-plan">
+      <div class="plan-badge">⚡ Most Popular</div>
+      <div class="service-icon">🔥</div>
+      <h3>Standard</h3>
+      <p>Cinematic design with custom effects, compositing, and expressive typography. This is the sweet spot for growing channels.</p>
+      <div class="price-block">
+        <div class="price-main">₹299</div>
+        <div class="price-sub">~$3.5 USD &nbsp;·&nbsp; per thumbnail</div>
+        <ul class="price-features">
+          <li>2 concepts to choose from</li>
+          <li>3 revisions</li>
+          <li>Delivered in 24hrs</li>
+          <li>High-res PNG + PSD source</li>
+        </ul>
+      </div>
+    </div>
+    <div class="service-card">
+      <div class="service-icon">📦</div>
+      <h3>Bulk Deal</h3>
+      <p>5 thumbnails for the price of 3. Best value for channels that post consistently. Priority queue, consistent style.</p>
+      <div class="price-block">
+        <div class="price-main">₹999</div>
+        <div class="price-sub">~$12 USD &nbsp;·&nbsp; for 5 thumbnails</div>
+        <ul class="price-features">
+          <li>5 thumbnails</li>
+          <li>Unlimited revisions</li>
+          <li>Priority delivery</li>
+          <li>Channel style guide</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="contact">
+  <div class="contact-wrap reveal">
+    <div class="section-tag">Get In Touch</div>
+    <h2 class="section-title" style="font-family:'Bebas Neue',sans-serif;font-size:clamp(2.5rem,6vw,4rem);letter-spacing:0.06em">LET'S <span style="color:var(--gold)">WORK</span> TOGETHER</h2>
+    <div class="section-line"></div>
+    <p style="margin-top:1.5rem;color:var(--muted);font-size:1rem;line-height:1.7">Ready to grow your channel with thumbnails that actually get clicks? Reach out — I respond fast.</p>
+    <div class="contact-links">
+      <a href="#" class="contact-link"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.6 12 3.6 12 3.6s-7.5 0-9.4.5A3 3 0 0 0 .5 6.2C0 8.1 0 12 0 12s0 3.9.5 5.8a3 3 0 0 0 2.1 2.1c1.9.5 9.4.5 9.4.5s7.5 0 9.4-.5a3 3 0 0 0 2.1-2.1c.5-1.9.5-5.8.5-5.8s0-3.9-.5-5.8zM9.8 15.5V8.5l6.3 3.5-6.3 3.5z"/></svg>YouTube</a>
+      <a href="#" class="contact-link"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.2c3.2 0 3.6 0 4.8.1 3.2.1 4.7 1.7 4.8 4.8.1 1.2.1 1.6.1 4.8s0 3.6-.1 4.8c-.1 3.1-1.6 4.7-4.8 4.8-1.2.1-1.6.1-4.8.1s-3.6 0-4.8-.1c-3.2-.1-4.7-1.7-4.8-4.8C2.2 15.6 2.2 15.2 2.2 12s0-3.6.1-4.8C2.4 3.9 3.9 2.3 7.1 2.2c1.2 0 1.6-.1 4.9-.1zm0-2.2C8.7 0 8.3 0 7.1.1 2.8.3.3 2.8.1 7.1 0 8.3 0 8.7 0 12s0 3.7.1 4.9c.2 4.3 2.7 6.8 7 7C8.3 24 8.7 24 12 24s3.7 0 4.9-.1c4.3-.2 6.8-2.7 7-7 .1-1.2.1-1.6.1-4.9s0-3.7-.1-4.9c-.2-4.3-2.7-6.8-7-7C15.7 0 15.3 0 12 0zm0 5.8a6.2 6.2 0 1 0 0 12.4A6.2 6.2 0 0 0 12 5.8zm0 10.2a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.4-11.8a1.4 1.4 0 1 0 0 2.8 1.4 1.4 0 0 0 0-2.8z"/></svg>Instagram</a>
+      <a href="mailto:sahil@email.com" class="contact-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>Email Me</a>
+    </div>
+  </div>
+</section>
+
+<footer><p>© 2025 <span>Sahil</span> — YouTube Thumbnail Designer &nbsp;·&nbsp; All rights reserved</p></footer>
+
+<div class="lightbox" id="lightbox" onclick="closeLightbox(event)">
+  <button class="lb-close" onclick="closeLightbox(event)">✕</button>
+  <img id="lbImg" src="" alt="">
+</div>
+
+<script>
+const allSrcs=["images/lightbox1.jpg","images/lightbox2.jpg","images/lightbox3.jpg","images/lightbox4.jpg","images/lightbox5.jpg","images/lightbox6.jpg","images/lightbox7.jpg","images/lightbox8.jpg","images/lightbox9.jpg","images/lightbox10.jpg","images/lightbox11.jpg","images/lightbox12.jpg","images/lightbox13.jpg","images/lightbox14.jpg","images/lightbox15.jpg"];
+const cursor=document.getElementById('cursor'),cursorRing=document.getElementById('cursorRing');
+let cx=0,cy=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{cx=e.clientX;cy=e.clientY;cursor.style.transform=`translate(${cx-6}px,${cy-6}px)`});
+function animateRing(){rx+=(cx-rx)*0.12;ry+=(cy-ry)*0.12;cursorRing.style.transform=`translate(${rx-18}px,${ry-18}px)`;requestAnimationFrame(animateRing)}
+animateRing();
+function openLightbox(idx){document.getElementById('lbImg').src=allSrcs[idx];document.getElementById('lightbox').classList.add('open');document.body.style.overflow='hidden'}
+function closeLightbox(e){if(!e||e.target===document.getElementById('lightbox')||e.currentTarget.classList.contains('lb-close')){document.getElementById('lightbox').classList.remove('open');document.body.style.overflow=''}}
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){document.getElementById('lightbox').classList.remove('open');document.body.style.overflow=''}});
+function filterThumbs(cat,btn){document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');document.querySelectorAll('.thumb-card').forEach(c=>{c.style.display=(cat==='all'||c.dataset.cat===cat)?'':'none'})}
+const observer=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible')}),{threshold:0.1});
+document.querySelectorAll('.reveal').forEach(el=>observer.observe(el));
+</script>
+</body>
+</html>
